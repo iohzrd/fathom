@@ -7,10 +7,15 @@ Fathom is a tool to which seeks to provide the ability to make digital audio/vid
 
 
 
-## dependencies
-* Python
-* pycryptodome
+## Install dependencies
+* pip install pycryptodome qrcode
 
+
+
+## Run
+```
+$ python fathom.py
+```
 
 
 ## TODO
