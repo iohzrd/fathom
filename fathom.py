@@ -14,8 +14,8 @@ class Fathom(object):
     def __init__(self, pri_key_arg=None, pub_key_arg=None):
         self.pri_key = None
         self.pub_key = None
-        self.root = tk.Tk()
-        self.panel1 = tk.Label(self.root, image='')
+        self.image_root = tk.Tk()
+        self.panel1 = tk.Label(self.image_root, image="")
 
         if not pri_key_arg:
             self.pri_key_arg = "private.pem"
@@ -23,7 +23,7 @@ class Fathom(object):
             self.pri_key_arg = pri_key_arg
 
         if os.path.isfile(self.pri_key_arg):
-            self.pri_key = RSA.import_key(open('private.pem').read())
+            self.pri_key = RSA.import_key(open(self.pri_key_arg).read())
         else:
             print("generating private key: {}".format(self.pri_key_arg))
             self.pri_key_raw = RSA.generate(2048)
@@ -37,7 +37,7 @@ class Fathom(object):
             self.pub_key_arg = pub_key_arg
 
         if os.path.isfile(self.pub_key_arg):
-            self.pub_key = RSA.import_key(open('./public.pem').read())
+            self.pub_key = RSA.import_key(open(self.pub_key_arg).read())
         else:
             print("generating public key: {}".format(self.pub_key_arg))
             self.pub_key = self.pri_key_raw.publickey().export_key()
@@ -60,8 +60,8 @@ class Fathom(object):
             self.panel1.configure(image=tkimage)
             self.panel1.image = tkimage
             self.panel1.pack()
-            self.root.update_idletasks()
-            self.root.update()
+            self.image_root.update_idletasks()
+            self.image_root.update()
             print(sig_hex)
 
             # print("---------------------------------------")
