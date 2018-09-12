@@ -5,6 +5,7 @@ from Crypto.Signature import DSS, pss
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.config import Config
+from kivy.core.audio import SoundLoader
 from kivy.core.image import Image as CoreImage
 from kivy.core.window import Window
 from kivy.uix.boxlayout import BoxLayout
