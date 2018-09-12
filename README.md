@@ -8,12 +8,9 @@ Fathom is a tool to which seeks to provide the ability to make digital audio/vid
 
 
 ## Install dependencies
-### general
 ```
 $ pip install pycryptodome qrcode
-```
-### kivy version
-```
+AND
 $ sudo apt install python-kivy
 OR
 $ sudo apt install libgl1-mesa-dev 
@@ -25,8 +22,6 @@ $ pip install kivy
 ## Run
 ```
 $ python fathom.py
-OR
-$ python fathom_tk.py
 ```
 
 

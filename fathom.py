@@ -4,10 +4,12 @@ from Crypto.Signature import DSS, pss
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.config import Config
+from kivy.core.image import Image as CoreImage
 from kivy.core.window import Window
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image
 import base64
+import io
 import kivy
 import os.path
 import qrcode
@@ -18,7 +20,7 @@ class Fathom(App):
     def build(self, pri_key_arg=None, pub_key_arg=None):
         self.title = 'fathom'
         self.layout = BoxLayout(orientation='vertical')
-        self.image = Image(source="temp.png")
+        self.image = Image(source="")
         self.layout.add_widget(self.image)
 
         if not pri_key_arg:
@@ -63,7 +65,13 @@ class Fathom(App):
             "Timestamp": t,
         }
         print(msg)
-        qrcode.make(msg).save('temp.png')
+        byteImgIO = io.BytesIO()
+        qr = qrcode.make(msg)
+        qr.save(byteImgIO, ext='png')
+        byteImgIO.seek(0)
+        dataBytesIO = io.BytesIO(byteImgIO.read())
+        self.image.texture = CoreImage(dataBytesIO, ext='png').texture
+
         self.image.reload()
 
         # try:
