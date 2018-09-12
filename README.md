@@ -26,7 +26,7 @@ $ pip install kivy
 ```
 $ python fathom.py
 OR
-$ python fathom_kivy.py
+$ python fathom_tk.py
 ```
 
 

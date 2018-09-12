@@ -1,25 +1,25 @@
-from Crypto import Random
 from Crypto.Hash import SHA256
-from Crypto.PublicKey import RSA
-from Crypto.Signature import pss
-import PIL
-from PIL import Image, ImageTk
-from Tkinter import *
+from Crypto.PublicKey import ECC, RSA
+from Crypto.Signature import DSS, pss
+from kivy.app import App
+from kivy.clock import Clock
+from kivy.config import Config
+from kivy.core.window import Window
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.image import Image
 import base64
+import kivy
 import os.path
 import qrcode
 import time
-import tkinter as tk
 
 
-class Fathom(object):
-    def __init__(self, pri_key_arg=None, pub_key_arg=None):
-        self.window = tk.Tk()
-        self.window.geometry("%dx%d+0+0" %
-                             (self.window.winfo_screenwidth(),
-                              self.window.winfo_screenheight()))
-        self.canvas = Canvas(
-            self.window, bd=0, highlightthickness=0, background='black')
+class Fathom(App):
+    def build(self, pri_key_arg=None, pub_key_arg=None):
+        self.title = 'fathom'
+        self.layout = BoxLayout(orientation='vertical')
+        self.image = Image(source="temp.png")
+        self.layout.add_widget(self.image)
 
         if not pri_key_arg:
             self.pri_key_arg = "private.pem"
@@ -27,7 +27,7 @@ class Fathom(object):
             self.pri_key_arg = pri_key_arg
 
         if os.path.isfile(self.pri_key_arg):
-            self.pri_key = RSA.import_key(open(self.pri_key_arg).read())
+            self.pri_key = RSA.import_key(open(self.pri_key_arg))
         else:
             print("generating private key: {}".format(self.pri_key_arg))
             self.pri_key_raw = RSA.generate(2048)
@@ -41,41 +41,44 @@ class Fathom(object):
             self.pub_key_arg = pub_key_arg
 
         if os.path.isfile(self.pub_key_arg):
-            self.pub_key = RSA.import_key(open(self.pub_key_arg).read())
+            self.pub_key = RSA.import_key(open(self.pub_key_arg))
         else:
             print("generating public key: {}".format(self.pub_key_arg))
             self.pub_key = self.pri_key_raw.publickey().export_key()
             file_out = open(self.pub_key_arg, "wb")
             file_out.write(self.pub_key)
 
-        while True:
-            t = str(time.time()).encode("utf-8")
-            h = SHA256.new(t)
-            signature = pss.new(self.pri_key).sign(h)
-            msg = {
-                "Signature": base64.b64encode(signature),
-                "Timestamp": t,
-            }
-            self.qr = qrcode.make(msg)
+        self.update(dt=None)
+        Clock.schedule_interval(self.update, 1)
 
-            if self.window.winfo_width() > self.window.winfo_height():
-                smaller = self.window.winfo_height()
-            else:
-                smaller = self.window.winfo_width()
+        return self.layout
 
-            self.image = PIL.ImageTk.PhotoImage(
-                self.qr._img.resize((smaller, smaller)))
-            self.canvas.create_image(
-                (self.window.winfo_width() / 2 - smaller / 2),
-                (self.window.winfo_height() / 2 - smaller / 2),
-                image=self.image,
-                anchor=NW)
-            self.canvas.pack(fill=BOTH, expand=1)
-            self.window.update()
-            print(msg)
+    def update(self, dt):
+        t = str(time.time()).encode("utf-8")
+        hash = SHA256.new(t)
+        signature = pss.new(self.pri_key).sign(hash)
 
-            time.sleep(1)
+        msg = {
+            "Signature": base64.b64encode(signature),
+            "Timestamp": t,
+        }
+        print(msg)
+        qrcode.make(msg).save('temp.png')
+        self.image.reload()
+
+        # try:
+        #     t2 = msg.get("Timestamp")
+        #     h = SHA3_512.new(t2)
+        #     pss.new(self.pub_key).verify(
+        #         h,
+        #         base64.b64decode(msg.get("Signature")))
+        #     print "The signature is authentic."
+        # except (ValueError, TypeError):
+        #     print "The signature is not authentic."
 
 
 if __name__ == "__main__":
-    Fathom()
+    Config.set('graphics', 'fullscreen', 0)
+    Config.set('graphics', 'window_state', 'maximized')
+    Config.write()
+    Fathom().run()
