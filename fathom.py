@@ -2,8 +2,10 @@ from Crypto import Random
 from Crypto.Hash import SHA256
 from Crypto.PublicKey import RSA
 from Crypto.Signature import pss
+import PIL
 from PIL import Image, ImageTk
-from base64 import b64encode
+from Tkinter import *
+import base64
 import os.path
 import qrcode
 import time
@@ -12,10 +14,12 @@ import tkinter as tk
 
 class Fathom(object):
     def __init__(self, pri_key_arg=None, pub_key_arg=None):
-        self.pri_key = None
-        self.pub_key = None
-        self.image_root = tk.Tk()
-        self.panel1 = tk.Label(self.image_root, image="")
+        self.window = tk.Tk()
+        self.window.geometry("%dx%d+0+0" %
+                             (self.window.winfo_screenwidth(),
+                              self.window.winfo_screenheight()))
+        self.canvas = Canvas(
+            self.window, bd=0, highlightthickness=0, background='black')
 
         if not pri_key_arg:
             self.pri_key_arg = "private.pem"
@@ -44,39 +48,34 @@ class Fathom(object):
             file_out = open(self.pub_key_arg, "wb")
             file_out.write(self.pub_key)
 
-        self.runForever()
-
-    def runForever(self):
         while True:
-            t = str(time.time())
-            print(t)
+            t = str(time.time()).encode("utf-8")
             h = SHA256.new(t)
-            # this will be used for visual identity verification
             signature = pss.new(self.pri_key).sign(h)
-            sig_hex = b64encode(signature)
+            msg = {
+                "Signature": base64.b64encode(signature),
+                "Timestamp": t,
+            }
+            self.qr = qrcode.make(msg)
 
-            sig_img = qrcode.make(sig_hex)
-            tkimage = ImageTk.PhotoImage(sig_img)
-            self.panel1.configure(image=tkimage)
-            self.panel1.image = tkimage
-            self.panel1.pack()
-            self.image_root.update_idletasks()
-            self.image_root.update()
-            print(sig_hex)
+            if self.window.winfo_width() > self.window.winfo_height():
+                smaller = self.window.winfo_height()
+            else:
+                smaller = self.window.winfo_width()
 
-            # print("---------------------------------------")
+            self.image = PIL.ImageTk.PhotoImage(
+                self.qr._img.resize((smaller, smaller)))
+            self.canvas.create_image(
+                (self.window.winfo_width() / 2 - smaller / 2),
+                (self.window.winfo_height() / 2 - smaller / 2),
+                image=self.image,
+                anchor=NW)
+            self.canvas.pack(fill=BOTH, expand=1)
+            self.window.update()
+            print(msg)
 
-            # h = SHA256.new(t)
-            # verifier = pss.new(self.pub_key)
-            # try:
-            #     verifier.verify(h, signature)
-            #     print "The signature is authentic."
-            # except (ValueError, TypeError):
-            #     print "The signature is not authentic."
-
-            time.sleep(2)
+            time.sleep(1)
 
 
 if __name__ == "__main__":
-    f = Fathom()
-    # f.runForever()
+    Fathom()

@@ -8,8 +8,16 @@ Fathom is a tool to which seeks to provide the ability to make digital audio/vid
 
 
 ## Install dependencies
+### general
 ```
 $ pip install pycryptodome qrcode
+```
+### kivy version
+```
+$ sudo apt install python-kivy
+OR
+$ sudo apt install libgl1-mesa-dev 
+$ pip install kivy
 ```
 
 
@@ -17,6 +25,8 @@ $ pip install pycryptodome qrcode
 ## Run
 ```
 $ python fathom.py
+OR
+$ python fathom_kivy.py
 ```
 
 
@@ -24,3 +34,4 @@ $ python fathom.py
 - [x] generate public private key pairs and sign utc timestamp.
 - [x] encode signed timestamp as qrcode to secure against visual impersonation.
 - [ ] encode signed timestamp as audio "chirps" to secure against auditory impersonation.
+- [ ] choose signature algorithm.
