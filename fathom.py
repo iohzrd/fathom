@@ -57,8 +57,8 @@ class Fathom(App):
 
     def update(self, dt):
         t = str(time.time()).encode("utf-8")
-        hash = SHA256.new(t)
-        signature = pss.new(self.pri_key).sign(hash)
+        h = SHA256.new(t)
+        signature = pss.new(self.pri_key).sign(h)
         msg = {
             "Signature": base64.b64encode(signature),
             "Timestamp": t,
@@ -73,8 +73,8 @@ class Fathom(App):
         self.image.reload()
 
         # try:
-        #     t2 = msg.get("Timestamp")
-        #     h = SHA3_512.new(t2)
+        #     t = msg.get("Timestamp")
+        #     h = SHA256.new(t)
         #     pss.new(self.pub_key).verify(
         #         h,
         #         base64.b64decode(msg.get("Signature")))
