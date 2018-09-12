@@ -21,12 +21,15 @@ import time
 
 class Fathom(App):
     def build(self, pri_key_arg=None, pub_key_arg=None):
-        Clock.schedule_interval(self.update, 1)
+        # kivy stuff
+        Clock.schedule_interval(self.generateSignature, 1)
         self.title = 'fathom'
         self.layout = BoxLayout(orientation='vertical')
         self.image = Image(source="")
+        self.image.allow_stretch = True
         self.layout.add_widget(self.image)
 
+        # generate keys if necessary
         if not pri_key_arg:
             self.pri_key_arg = "private.pem"
         else:
@@ -54,31 +57,48 @@ class Fathom(App):
             file_out = open(self.pub_key_arg, "wb")
             file_out.write(self.pub_key)
 
-        self.update(dt=None)
+        # signature objects
+        self.time = None
+        self.hash = None
+        self.signature = None
+        self.msg = None
+
+        self.generateSignature(dt=None)
         return self.layout
 
-    def update(self, dt):
-        # Generate timestamp and signature
-        t = str(time.time()).encode("utf-8")
-        h = SHA256.new(t)
-        signature = pss.new(self.pri_key).sign(h)
-        msg = {
-            "Signature": base64.b64encode(signature),
-            "Timestamp": t,
-        }
-        print(msg)
+    def generateChirp(self):
+        pass
+
+    def generateQR(self):
         # Generate qrcode of timestamp and signature
         imgIO = io.BytesIO()
-        qr = qrcode.make(msg)
-        qr.save(imgIO, ext='png')
+        qr = qrcode.QRCode(border=0)
+        qr.add_data(self.msg)
+        qr.make(fit=True)
+        img = qr.make_image(fill_color="white", back_color="black")
+        img.save(imgIO, ext='png')
         imgIO.seek(0)
         imgData = io.BytesIO(imgIO.read())
         # Load qr code into the UI
         self.image.texture = CoreImage(imgData, ext='png').texture
         self.image.reload()
 
+    def generateSignature(self, dt):
+        # Generate timestamp and signature
+        self.time = str(time.time()).encode("utf-8")
+        self.hash = SHA256.new(self.time)
+        self.signature = pss.new(self.pri_key).sign(self.hash)
+        self.msg = {
+            "Signature": base64.b64encode(self.signature),
+            "Timestamp": self.time,
+        }
+        # print(self.msg)
+        self.generateChirp()
+        self.generateQR()
+
 
 if __name__ == "__main__":
+    # Window.fullscreen = 0
     Config.set('graphics', 'fullscreen', 0)
     Config.set('graphics', 'window_state', 'maximized')
     Config.write()
