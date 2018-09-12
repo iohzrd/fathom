@@ -54,7 +54,6 @@ class Fathom(App):
             file_out.write(self.pub_key)
 
         self.update(dt=None)
-
         return self.layout
 
     def update(self, dt):
@@ -76,17 +75,6 @@ class Fathom(App):
         # Load qr code into the UI
         self.image.texture = CoreImage(imgData, ext='png').texture
         self.image.reload()
-
-        # Test signature
-        # try:
-        #     t = msg.get("Timestamp")
-        #     h = SHA256.new(t)
-        #     pss.new(self.pub_key).verify(
-        #         h,
-        #         base64.b64decode(msg.get("Signature")))
-        #     print "The signature is authentic."
-        # except (ValueError, TypeError):
-        #     print "The signature is not authentic."
 
 
 if __name__ == "__main__":
