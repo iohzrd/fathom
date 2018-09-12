@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from Crypto.Hash import SHA256
 from Crypto.PublicKey import ECC, RSA
 from Crypto.Signature import DSS, pss
@@ -11,6 +12,7 @@ from kivy.uix.image import Image
 import base64
 import io
 import kivy
+import numpy
 import os.path
 import qrcode
 import time
@@ -32,7 +34,7 @@ class Fathom(App):
         if os.path.isfile(self.pri_key_arg):
             self.pri_key = RSA.import_key(open(self.pri_key_arg))
         else:
-            print("generating private key: {}".format(self.pri_key_arg))
+            print(("generating private key: {}".format(self.pri_key_arg)))
             self.pri_key_raw = RSA.generate(2048)
             self.pri_key = self.pri_key_raw.export_key()
             file_out = open(self.pri_key_arg, "wb")
@@ -46,7 +48,7 @@ class Fathom(App):
         if os.path.isfile(self.pub_key_arg):
             self.pub_key = RSA.import_key(open(self.pub_key_arg))
         else:
-            print("generating public key: {}".format(self.pub_key_arg))
+            print(("generating public key: {}".format(self.pub_key_arg)))
             self.pub_key = self.pri_key_raw.publickey().export_key()
             file_out = open(self.pub_key_arg, "wb")
             file_out.write(self.pub_key)
@@ -56,6 +58,7 @@ class Fathom(App):
         return self.layout
 
     def update(self, dt):
+        # Generate timestamp and signature
         t = str(time.time()).encode("utf-8")
         h = SHA256.new(t)
         signature = pss.new(self.pri_key).sign(h)
@@ -64,14 +67,17 @@ class Fathom(App):
             "Timestamp": t,
         }
         print(msg)
-        byteImgIO = io.BytesIO()
+        # Generate qrcode of timestamp and signature
+        imgIO = io.BytesIO()
         qr = qrcode.make(msg)
-        qr.save(byteImgIO, ext='png')
-        byteImgIO.seek(0)
-        dataBytesIO = io.BytesIO(byteImgIO.read())
-        self.image.texture = CoreImage(dataBytesIO, ext='png').texture
+        qr.save(imgIO, ext='png')
+        imgIO.seek(0)
+        imgData = io.BytesIO(imgIO.read())
+        # Load qr code into the UI
+        self.image.texture = CoreImage(imgData, ext='png').texture
         self.image.reload()
 
+        # Test signature
         # try:
         #     t = msg.get("Timestamp")
         #     h = SHA256.new(t)
