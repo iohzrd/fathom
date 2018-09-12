@@ -63,6 +63,7 @@ class Fathom(App):
         self.signature = None
         self.msg = None
 
+        # generate initial signature immediately
         self.generateSignature(dt=None)
         return self.layout
 
