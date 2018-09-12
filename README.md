@@ -16,6 +16,7 @@ OR
 $ sudo apt install libgl1-mesa-dev 
 $ pip install kivy
 ```
+tested on ubuntu
 
 
 
@@ -23,6 +24,12 @@ $ pip install kivy
 ```
 $ python fathom.py
 ```
+
+
+
+## Use cases
+* coming soon
+
 
 
 ## TODO

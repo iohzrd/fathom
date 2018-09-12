@@ -18,6 +18,7 @@ import time
 
 class Fathom(App):
     def build(self, pri_key_arg=None, pub_key_arg=None):
+        Clock.schedule_interval(self.update, 1)
         self.title = 'fathom'
         self.layout = BoxLayout(orientation='vertical')
         self.image = Image(source="")
@@ -51,7 +52,6 @@ class Fathom(App):
             file_out.write(self.pub_key)
 
         self.update(dt=None)
-        Clock.schedule_interval(self.update, 1)
 
         return self.layout
 
@@ -59,7 +59,6 @@ class Fathom(App):
         t = str(time.time()).encode("utf-8")
         hash = SHA256.new(t)
         signature = pss.new(self.pri_key).sign(hash)
-
         msg = {
             "Signature": base64.b64encode(signature),
             "Timestamp": t,
@@ -71,7 +70,6 @@ class Fathom(App):
         byteImgIO.seek(0)
         dataBytesIO = io.BytesIO(byteImgIO.read())
         self.image.texture = CoreImage(dataBytesIO, ext='png').texture
-
         self.image.reload()
 
         # try:
