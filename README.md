@@ -35,5 +35,5 @@ $ python fathom.py
 ## TODO
 - [x] generate public private key pairs and sign utc timestamp.
 - [x] encode signed timestamp as qrcode to secure against visual impersonation.
-- [ ] encode signed timestamp as audio "chirps" to secure against auditory impersonation.
 - [ ] choose signature algorithm.
+- [ ] encode/play signed timestamp as audio "chirps"(probably ~18khz) to secure against auditory impersonation.

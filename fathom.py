@@ -69,6 +69,12 @@ class Fathom(App):
 
     def generateChirp(self):
         pass
+        # sndIO = io.BytesIO()
+        # # TODO generate wav and save to sndIO here
+        # sndIO.seek(0)
+        # sndData = io.BytesIO(sndIO.read())
+        # player = SoundLoader.load(sndData)
+        # player.play()
 
     def generateQR(self):
         # Generate qrcode of timestamp and signature
@@ -93,7 +99,8 @@ class Fathom(App):
             "Signature": base64.b64encode(self.signature),
             "Timestamp": self.time,
         }
-        # print(self.msg)
+        print("-"*100)
+        print(self.msg)
         self.generateChirp()
         self.generateQR()
 
